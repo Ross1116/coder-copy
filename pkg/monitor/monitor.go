@@ -2,7 +2,6 @@ package monitor
 
 import (
 	"context"
-	"fmt"
 
 	commentremover "github.com/Ross1116/copy-comment-remover/pkg/comment_remover"
 	"golang.design/x/clipboard"
@@ -17,7 +16,7 @@ func MonitorClipboard(language string) string {
 		currContent := string(content)
 
 		if currContent != prevContent {
-			fmt.Println(currContent)
+			// fmt.Println(currContent)
 			strippedContent := commentremover.CommentRemover(currContent, language)
 			clipboard.Write(clipboard.FmtText, []byte(strippedContent))
 			prevContent = currContent

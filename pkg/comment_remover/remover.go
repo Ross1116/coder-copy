@@ -5,17 +5,26 @@ import "regexp"
 func CommentRemover(code string, language string) string {
 	switch language {
 	case "go", "c", "java", "javascript", "js":
-		return removeCStyleComments(code)
+		return removeCStyleComments(code, language)
 	case "python":
 		return removePythonComments(code)
 	default:
-		return removeCStyleComments(code)
+		return removeCStyleComments(code, language)
 	}
 }
 
-func removeCStyleComments(code string) string {
+func removeCStyleComments(code string, language string) string {
+	var afterJSXComments string
+
+	if language == "jsx" {
+		jsxCommentPattern := regexp.MustCompile(`\{/\*[\s\S]*?\*/\}`)
+		afterJSXComments = jsxCommentPattern.ReplaceAllString(code, "")
+	} else {
+		afterJSXComments = code
+	}
+
 	multiLinePattern := regexp.MustCompile(`/\*[\s\S]*?\*/`)
-	afterMultiLine := multiLinePattern.ReplaceAllString(code, "")
+	afterMultiLine := multiLinePattern.ReplaceAllString(afterJSXComments, "")
 
 	singleLinePattern := regexp.MustCompile(`(?m)//.*$`)
 	afterComments := singleLinePattern.ReplaceAllString(afterMultiLine, "")
@@ -34,7 +43,7 @@ func removePythonComments(code string) string {
 	afterComments := tripleQuotePattern.ReplaceAllString(afterSingleLine, "")
 
 	emptyLines := regexp.MustCompile(`(?m)^[ \t]*\r?\n`)
-	result := emptyLines.ReplaceAllString(afterComments, "")
+	result := emptyLines.ReplaceAllString(afterComments, "\n")
 
 	return result
 }

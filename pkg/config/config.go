@@ -10,11 +10,12 @@ type Config struct {
 
 func ParseFlags() *Config {
 
-	goLangPtr := flag.Bool("go", true, "Remove Go style comments (default)")
+	flag.Bool("go", true, "Remove Go style comments (default)")
 	cLangPtr := flag.Bool("c", false, "Remove C/C++ style comments")
 	javaPtr := flag.Bool("java", false, "Remove Java style comments")
 	pythonPtr := flag.Bool("python", false, "Remove Python style comments")
 	jsPtr := flag.Bool("js", false, "Remove JavaScript style comments")
+	jsxPtr := flag.Bool("jsx", false, "Remove JavaScript style comments")
 	flag.Parse()
 
 	language := "go"
@@ -27,8 +28,8 @@ func ParseFlags() *Config {
 		language = "python"
 	} else if *jsPtr {
 		language = "javascript"
-	} else if *goLangPtr {
-		language = "go"
+	} else if *jsxPtr {
+		language = "jsx"
 	}
 
 	return &Config{
