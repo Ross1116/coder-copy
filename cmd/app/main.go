@@ -17,5 +17,5 @@ func main() {
 	}
 
 	fmt.Println("Clipboard monitor started, Press ctrl+C to exit")
-	monitor.MonitorClipboard(cfg.Language)
+	monitor.MonitorClipboard(cfg.Language, cfg.Format)
 }

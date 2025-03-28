@@ -6,6 +6,7 @@ import (
 
 type Config struct {
 	Language string
+	Format   bool
 }
 
 func ParseFlags() *Config {
@@ -16,6 +17,7 @@ func ParseFlags() *Config {
 	pythonPtr := flag.Bool("python", false, "Remove Python style comments")
 	jsPtr := flag.Bool("js", false, "Remove JavaScript style comments")
 	jsxPtr := flag.Bool("jsx", false, "Remove JavaScript style comments")
+	formatPtr := flag.Bool("format", false, "Format the copied code automatically")
 	flag.Parse()
 
 	language := "go"
@@ -34,5 +36,6 @@ func ParseFlags() *Config {
 
 	return &Config{
 		Language: language,
+		Format:   *formatPtr,
 	}
 }
