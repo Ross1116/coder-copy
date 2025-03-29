@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	codeformatter "github.com/Ross1116/copy-comment-remover/pkg/code_formatter"
-	commentremover "github.com/Ross1116/copy-comment-remover/pkg/comment_remover"
+	codeformatter "github.com/Ross1116/coder-copy/pkg/code_formatter"
+	commentremover "github.com/Ross1116/coder-copy/pkg/comment_remover"
 	"golang.design/x/clipboard"
 )
 

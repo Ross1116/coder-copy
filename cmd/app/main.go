@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ross1116/copy-comment-remover/pkg/config"
-	"github.com/Ross1116/copy-comment-remover/pkg/monitor"
+	"github.com/Ross1116/coder-copy/pkg/config"
+	"github.com/Ross1116/coder-copy/pkg/monitor"
 	"golang.design/x/clipboard"
 )
 

@@ -1,4 +1,4 @@
-module github.com/Ross1116/copy-comment-remover
+module github.com/Ross1116/coder-copy
 
 go 1.24.1
 

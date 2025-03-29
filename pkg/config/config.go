@@ -86,7 +86,7 @@ func initialModel() model {
 			"Python",
 			"JavaScript",
 			"JSX",
-			"Autoformat code (only works for golang currently)",
+			"Autoformat code? (only works for golang currently)",
 		},
 		selected: make(map[int]struct{}),
 		config: &Config{

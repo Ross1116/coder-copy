@@ -1,4 +1,4 @@
-# Copy Comment Remover
+# Coder Copy
 
 Ever got annoyed copying code only to find it has tons of comments that you need to manually remove? This tool automatically does that for you!
 
@@ -25,24 +25,24 @@ The application is already built and available in the `bin` directory:
 
 ```bash
 # Default (Go comments)
-./bin/copy-comment-remover
+./bin/coder-copy
 #           or 
-./bin/copy-comment-remover -go
+./bin/coder-copy -go
 
 # For Python comments
-./bin/copy-comment-remover -python
+./bin/coder-copy -python
 
 # For JavaScript comments
-./bin/copy-comment-remover -js
+./bin/coder-copy -js
 
 # For JSX/React comments
-./bin/copy-comment-remover -jsx
+./bin/coder-copy -jsx
 
 # For Java comments
-./bin/copy-comment-remover -java
+./bin/coder-copy -java
 
 # For C/C++ comments
-./bin/copy-comment-remover -c
+./bin/coder-copy -c
 ```
 
 After starting the application:
@@ -88,7 +88,7 @@ If you prefer not to use Make:
 export CGO_ENABLED=1
 
 # Build
-go build -o bin/copy-comment-remover cmd/app/main.go
+go build -o bin/coder-copy cmd/app/main.go
 
 # Run
 go run cmd/app/main.go
