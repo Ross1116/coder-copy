@@ -19,7 +19,7 @@ func GetConfig() *Config {
 }
 
 func parseFlags() *Config {
-	goPtr := flag.Bool("go", true, "Remove Go style comments")
+	goPtr := flag.Bool("go", false, "Remove Go style comments")
 	cLangPtr := flag.Bool("c", false, "Remove C/C++ style comments")
 	javaPtr := flag.Bool("java", false, "Remove Java style comments")
 	pythonPtr := flag.Bool("python", false, "Remove Python style comments")
@@ -29,18 +29,18 @@ func parseFlags() *Config {
 	flag.Parse()
 
 	language := "go"
-	if !*goPtr {
-		if *cLangPtr {
-			language = "c"
-		} else if *javaPtr {
-			language = "java"
-		} else if *pythonPtr {
-			language = "python"
-		} else if *jsPtr {
-			language = "javascript"
-		} else if *jsxPtr {
-			language = "jsx"
-		}
+	if *cLangPtr {
+		language = "c"
+	} else if *javaPtr {
+		language = "java"
+	} else if *pythonPtr {
+		language = "python"
+	} else if *jsPtr {
+		language = "javascript"
+	} else if *jsxPtr {
+		language = "jsx"
+	} else if *goPtr {
+		language = "go"
 	}
 
 	return &Config{

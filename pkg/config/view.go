@@ -62,13 +62,13 @@ func (m Model) renderLanguageSelect() string {
 }
 
 func (m Model) renderFormatSelect() string {
-	title := titleStyle.Render("Coder Copy")
+	title := titleStyle.Render(logo)
 
-	langInfo := fmt.Sprintf("Selected language: %s",
+	langInfo := fmt.Sprintf("Selected language: %s\n",
 		highlightedInfoStyle.Render(m.config.Language))
 
 	subtitle := subtitleStyle.Render(
-		"Do you want to autoformat the code? (only works with golang currently)")
+		"Do you want to autoformat the code?")
 
 	var listItems strings.Builder
 	for i, choice := range m.formatChoices {
@@ -112,7 +112,7 @@ func (m Model) renderFormatSelect() string {
 }
 
 func (m Model) renderMonitoring() string {
-	title := titleStyle.Render("Coder Copy")
+	title := titleStyle.Render(logo)
 	subtitle := subtitleStyle.Render("Monitoring clipboard with configuration:")
 
 	langInfo := infoStyle.Render(fmt.Sprintf("Language: %s",

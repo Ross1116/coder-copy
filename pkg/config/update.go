@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -114,30 +115,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.config.Language = "jsx"
 				}
 
-				// m.screen = formatSelect
-				// m.cursor = 0
-				// if m.config.Format {
-				// 	m.cursor = 0
-				// } else {
-				// 	m.cursor = 1
-				// }
-
-				// temp golang check for autoformat
-				if m.config.Language == "go" {
-					m.screen = formatSelect
+				m.screen = formatSelect
+				m.cursor = 0
+				if m.config.Format {
 					m.cursor = 0
-					if m.config.Format {
-						m.cursor = 0
-					} else {
-						m.cursor = 1
-					}
 				} else {
-					m.config.Format = false
-					m.screen = monitoring
-					m.outputs = []string{}
-					m.lastClipboard = ""
-
-					return m, CheckClipboard()
+					m.cursor = 1
 				}
 
 			} else if m.screen == formatSelect {
@@ -158,10 +141,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			processed, err := m.processContent(content, m.config.Language, m.config.Format)
 			if err != nil {
-				m.outputs = append(m.outputs, fmt.Sprintf("Error: %v", err))
+				if strings.Contains(err.Error(), "formatter not found") {
+					m.config.Format = false
+					m.outputs = append(m.outputs, fmt.Sprintf("Error: %v \nAutoformatting disabled", err))
+				} else {
+					m.outputs = append(m.outputs, fmt.Sprintf("Error: %v", err))
+				}
 			} else if processed != content {
 				m.outputs = append(m.outputs, "Processed clipboard content")
-
 				clipboard.Write(clipboard.FmtText, []byte(processed))
 			}
 		}

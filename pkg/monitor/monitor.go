@@ -31,8 +31,30 @@ func MonitorClipboard(language string, format bool) string {
 func ProcessContent(content, language string, format bool) (string, error) {
 	strippedContent := commentremover.CommentRemover(content, language)
 
-	if format && language == "go" {
-		formattedContent, err := codeformatter.FormatCode(strippedContent)
+	if format {
+		var lang codeformatter.Language
+		switch language {
+		case "go":
+			lang = codeformatter.Go
+		case "cpp", "c++", "c":
+			lang = codeformatter.CPP
+		case "java":
+			lang = codeformatter.Java
+		case "javascript", "js":
+			lang = codeformatter.JS
+		case "typescript", "ts":
+			lang = codeformatter.TS
+		case "jsx":
+			lang = codeformatter.JSX
+		case "tsx":
+			lang = codeformatter.TSX
+		case "python", "py":
+			lang = codeformatter.Python
+		default:
+			lang = codeformatter.Go
+		}
+
+		formattedContent, err := codeformatter.FormatCode(strippedContent, lang)
 		if err != nil {
 			return strippedContent, err
 		}
