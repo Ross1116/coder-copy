@@ -162,7 +162,7 @@ func removePythonComments(code string) string {
 	inTripleQuote := false
 	tripleQuoteType := ""
 
-	for i := 0; i < len(lines); i++ {
+	for i := range lines {
 		line := lines[i]
 		trimmedLine := strings.TrimSpace(line)
 
