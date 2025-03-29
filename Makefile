@@ -9,4 +9,4 @@ run:
 	go run cmd/app/main.go
 
 clean:
-	rm -f coder-copy
+	rm -f bin/coder-copy

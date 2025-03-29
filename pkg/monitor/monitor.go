@@ -19,22 +19,25 @@ func MonitorClipboard(language string, format bool) string {
 
 		if currContent != prevContent {
 			fmt.Println(currContent)
-			var finalWrite string
-			var err error
-
-			strippedContent := commentremover.CommentRemover(currContent, language)
-			if format && language == "go" {
-				finalWrite, err = codeformatter.FormatCode(strippedContent)
-				if err != nil {
-					fmt.Println(err)
-				}
-			} else {
-				finalWrite = strippedContent
-			}
-			clipboard.Write(clipboard.FmtText, []byte(finalWrite))
+			processedContent, _ := ProcessContent(currContent, language, format)
+			clipboard.Write(clipboard.FmtText, []byte(processedContent))
 			prevContent = currContent
 		}
 	}
 
 	return prevContent
+}
+
+func ProcessContent(content, language string, format bool) (string, error) {
+	strippedContent := commentremover.CommentRemover(content, language)
+
+	if format && language == "go" {
+		formattedContent, err := codeformatter.FormatCode(strippedContent)
+		if err != nil {
+			return strippedContent, err
+		}
+		return formattedContent, nil
+	}
+
+	return strippedContent, nil
 }
