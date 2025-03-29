@@ -10,6 +10,8 @@ This tool monitors your clipboard for code snippets and automatically removes co
 
 - Lightweight clipboard monitoring
 - Automatic comment removal
+- Optional code formatting (Go only)
+- Interactive TUI with easy configuration
 - Supports multiple programming languages:
   - Go (default)
   - C/C++
@@ -26,29 +28,39 @@ The application is already built and available in the `bin` directory:
 ```bash
 # Default (Go comments)
 ./bin/coder-copy
-#           or 
+
+# With command-line flags
 ./bin/coder-copy -go
-
-# For Python comments
 ./bin/coder-copy -python
-
-# For JavaScript comments
 ./bin/coder-copy -js
-
-# For JSX/React comments
 ./bin/coder-copy -jsx
-
-# For Java comments
 ./bin/coder-copy -java
-
-# For C/C++ comments
 ./bin/coder-copy -c
+
+# Enable auto-formatting (Go only)
+./bin/coder-copy -format
 ```
 
-After starting the application:
-1. Copy any code containing comments
-2. The application automatically processes the code
-3. Paste the cleaned code wherever you need it
+### Interactive Mode
+
+Without command-line arguments, the application starts in interactive mode:
+
+1. Select your programming language using arrow keys (↑/↓) and press Enter
+2. Choose whether to enable auto-formatting (currently Go only)
+3. Start copying code with comments
+
+### Navigation
+
+- Press `s` to change settings while monitoring
+- Press `backspace` to go back to previous screens
+- Press `q` to quit the application
+
+## Workflow
+
+1. Start the application
+2. Copy any code containing comments
+3. The application automatically processes the code
+4. Paste the cleaned code wherever you need it
 
 ## Supported Comment Types
 
@@ -96,9 +108,10 @@ go run cmd/app/main.go
 
 ## How It Works
 
-The tool uses regular expressions to identify and remove comments from code. It watches the clipboard for changes and only processes new content, avoiding unnecessary operations.
+The tool uses regular expressions to identify and remove comments from code. It watches the clipboard for changes and only processes new content, avoiding unnecessary operations. The interactive TUI is built using [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
 ## Requirements
 
 - Go 1.16+
 - [golang.design/x/clipboard](https://pkg.go.dev/golang.design/x/clipboard) package
+- [github.com/charmbracelet/bubbletea](https://github.com/charmbracelet/bubbletea) package

@@ -114,12 +114,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.config.Language = "jsx"
 				}
 
-				m.screen = formatSelect
-				m.cursor = 0
-				if m.config.Format {
+				// m.screen = formatSelect
+				// m.cursor = 0
+				// if m.config.Format {
+				// 	m.cursor = 0
+				// } else {
+				// 	m.cursor = 1
+				// }
+
+				// temp golang check for autoformat
+				if m.config.Language == "go" {
+					m.screen = formatSelect
 					m.cursor = 0
+					if m.config.Format {
+						m.cursor = 0
+					} else {
+						m.cursor = 1
+					}
 				} else {
-					m.cursor = 1
+					m.config.Format = false
+					m.screen = monitoring
+					m.outputs = []string{}
+					m.lastClipboard = ""
+
+					return m, CheckClipboard()
 				}
 
 			} else if m.screen == formatSelect {

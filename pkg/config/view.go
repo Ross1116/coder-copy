@@ -2,6 +2,9 @@ package config
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func (m Model) View() string {
@@ -18,60 +21,165 @@ func (m Model) View() string {
 }
 
 func (m Model) renderLanguageSelect() string {
-	s := "\nSelect language for comment removal:\n\n"
+	title := titleStyle.Render(logo)
+	subtitle := subtitleStyle.Render("Select language for comment removal:")
 
+	var listItems strings.Builder
 	for i, choice := range m.languageChoices {
-		cursor := " "
 		if m.cursor == i {
-			cursor = ">"
+			listItems.WriteString(selectedItemStyle.Render(choice) + "\n")
+		} else {
+			listItems.WriteString(listItemStyle.Render(choice) + "\n")
 		}
-
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
 
-	s += "\nPress enter to select"
-	return s
+	mutedInstructionStyle := buttonStyle
+	mutedInstructionStyle = mutedInstructionStyle.
+		Foreground(subtle).
+		Background(lipgloss.NoColor{}).
+		Bold(false)
+
+	instruction := mutedInstructionStyle.Render("[ Enter ] to select")
+	quitInstruction := mutedInstructionStyle.Render("[ q ] to quit")
+
+	instructions := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		instruction,
+		"    ",
+		quitInstruction,
+	)
+
+	return appStyle.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			subtitle,
+			listItems.String(),
+			"",
+			instructions,
+		),
+	)
 }
 
 func (m Model) renderFormatSelect() string {
-	s := fmt.Sprintf("\nSelected language: %s\n\n", m.config.Language)
-	s += "Do you want to autoformat the code? (only works with golang currently)\n\n"
+	title := titleStyle.Render("Coder Copy")
 
+	langInfo := fmt.Sprintf("Selected language: %s",
+		highlightedInfoStyle.Render(m.config.Language))
+
+	subtitle := subtitleStyle.Render(
+		"Do you want to autoformat the code? (only works with golang currently)")
+
+	var listItems strings.Builder
 	for i, choice := range m.formatChoices {
-		cursor := " "
 		if m.cursor == i {
-			cursor = ">"
+			listItems.WriteString(selectedItemStyle.Render(choice) + "\n")
+		} else {
+			listItems.WriteString(listItemStyle.Render(choice) + "\n")
 		}
-
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
 
-	s += "\nPress enter to select"
-	s += "\nPress backspace to go back"
-	return s
+	mutedInstructionStyle := buttonStyle
+	mutedInstructionStyle = mutedInstructionStyle.
+		Foreground(subtle).
+		Background(lipgloss.NoColor{}).
+		Bold(false)
+
+	enterInstruction := mutedInstructionStyle.Render("[ Enter ] to select")
+	backInstruction := mutedInstructionStyle.Render("[ Backspace ] to go back")
+	quitInstruction := mutedInstructionStyle.Render("[ q ] to quit")
+
+	instructions := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		enterInstruction,
+		"    ",
+		backInstruction,
+		"    ",
+		quitInstruction,
+	)
+
+	return appStyle.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			langInfo,
+			subtitle,
+			listItems.String(),
+			"",
+			instructions,
+		),
+	)
 }
 
 func (m Model) renderMonitoring() string {
-	s := "\nMonitoring clipboard with configuration:\n"
-	s += fmt.Sprintf("\nLanguage: %s\n", m.config.Language)
-	s += fmt.Sprintf("Autoformat: %v\n\n", m.config.Format)
+	title := titleStyle.Render("Coder Copy")
+	subtitle := subtitleStyle.Render("Monitoring clipboard with configuration:")
 
+	langInfo := infoStyle.Render(fmt.Sprintf("Language: %s",
+		highlightedInfoStyle.Render(m.config.Language)))
+
+	formatInfo := infoStyle.Render(fmt.Sprintf("Autoformat: %s",
+		highlightedInfoStyle.Render(fmt.Sprintf("%v", m.config.Format))))
+
+	var logSection string
 	if len(m.outputs) == 0 {
-		s += "Waiting for clipboard content...\n"
+		logSection = infoStyle.Render("Waiting for clipboard content...")
 	} else {
-		s += "Activity log:\n"
+		logTitle := infoStyle.Render("Activity log:")
 
+		var logEntries strings.Builder
 		startIdx := 0
 		if len(m.outputs) > 10 {
 			startIdx = len(m.outputs) - 10
 		}
 
 		for _, output := range m.outputs[startIdx:] {
-			s += fmt.Sprintf("- %s\n", output)
+			var style lipgloss.Style
+			if strings.Contains(output, "Error") {
+				style = errorLogStyle
+			} else {
+				style = successLogStyle
+			}
+			logEntries.WriteString(style.Render("• "+output) + "\n")
 		}
+
+		logSection = lipgloss.JoinVertical(
+			lipgloss.Left,
+			logTitle,
+			logEntries.String(),
+		)
 	}
 
-	s += "\nPress s to change settings"
-	s += "\nPress q to quit"
-	return s
+	mutedInstructionStyle := buttonStyle
+	mutedInstructionStyle = mutedInstructionStyle.
+		Foreground(subtle).
+		Background(lipgloss.NoColor{}).
+		Bold(false)
+
+	settingsInstruction := mutedInstructionStyle.Render("[ s ] to change settings")
+	quitInstruction := mutedInstructionStyle.Render("[ q ] to quit")
+
+	instructions := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		settingsInstruction,
+		"    ",
+		quitInstruction,
+	)
+
+	return appStyle.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			subtitle,
+			lipgloss.JoinVertical(
+				lipgloss.Left,
+				langInfo,
+				formatInfo,
+			),
+			"",
+			logSection,
+			"",
+			instructions,
+		),
+	)
 }
