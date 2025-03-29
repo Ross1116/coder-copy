@@ -25,6 +25,7 @@ var (
 
 	errorColor   = lipgloss.AdaptiveColor{Light: "#F25D94", Dark: "#F25D94"}
 	successColor = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	warningColor = lipgloss.AdaptiveColor{Light: "#FFA500", Dark: "#FFD700"}
 )
 
 var (
@@ -69,4 +70,7 @@ var (
 
 	errorLogStyle = lipgloss.NewStyle().
 			Foreground(errorColor)
+
+	warningLogStyle = lipgloss.NewStyle().
+			Foreground(warningColor)
 )

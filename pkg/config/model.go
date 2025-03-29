@@ -6,6 +6,7 @@ const (
 	languageSelect screenState = iota
 	formatSelect
 	monitoring
+	contentView
 )
 
 type Model struct {
@@ -16,6 +17,8 @@ type Model struct {
 	config          *Config
 	outputs         []string
 	lastClipboard   string
+	lastProcessed   string
+	scrollPosition  int
 	processContent  func(string, string, bool) (string, error)
 }
 

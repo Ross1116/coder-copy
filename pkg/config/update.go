@@ -16,6 +16,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 
+		case "v":
+			if m.screen == monitoring && m.lastProcessed != "" {
+				m.screen = contentView
+			}
+			return m, nil
+
+		case "esc":
+			if m.screen == contentView {
+				m.screen = monitoring
+			}
+			return m, nil
+
 		case "backspace":
 			if m.screen == formatSelect {
 				m.screen = languageSelect
@@ -86,17 +98,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "k", "up":
-			if m.cursor > 0 {
-				m.cursor--
+		case "up", "k":
+			if m.screen == contentView && m.scrollPosition > 0 {
+				m.scrollPosition--
+			} else if m.screen == languageSelect || m.screen == formatSelect {
+				if m.cursor > 0 {
+					m.cursor--
+				}
 			}
+			return m, nil
 
-		case "j", "down":
-			if m.screen == languageSelect && m.cursor < len(m.languageChoices)-1 {
+		case "down", "j":
+			if m.screen == contentView {
+				contentLines := strings.Count(m.lastProcessed, "\n") + 1
+				viewportHeight := 20
+				maxScroll := max(0, contentLines-viewportHeight)
+
+				if m.scrollPosition < maxScroll {
+					m.scrollPosition++
+				}
+			} else if m.screen == languageSelect && m.cursor < len(m.languageChoices)-1 {
 				m.cursor++
 			} else if m.screen == formatSelect && m.cursor < len(m.formatChoices)-1 {
 				m.cursor++
 			}
+			return m, nil
 
 		case "enter", " ":
 			if m.screen == languageSelect {
@@ -143,12 +169,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if err != nil {
 				if strings.Contains(err.Error(), "formatter not found") {
 					m.config.Format = false
-					m.outputs = append(m.outputs, fmt.Sprintf("Error: %v \nAutoformatting disabled", err))
+					m.addToOutputsQueue(fmt.Sprintf("Error: %v \nAutoformatting disabled", err))
 				} else {
-					m.outputs = append(m.outputs, fmt.Sprintf("Error: %v", err))
+					m.addToOutputsQueue(fmt.Sprintf("Warning: %v", err))
 				}
-			} else if processed != content {
-				m.outputs = append(m.outputs, "Processed clipboard content")
+			}
+
+			if processed != content {
+				m.addToOutputsQueue("Processed clipboard content")
+				m.lastProcessed = processed
 				clipboard.Write(clipboard.FmtText, []byte(processed))
 			}
 		}
@@ -156,7 +185,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, CheckClipboard()
 
 	case ErrorMsg:
-		m.outputs = append(m.outputs, fmt.Sprintf("Error: %v", msg))
+		m.addToOutputsQueue(fmt.Sprintf("Error: %v", msg))
 		return m, CheckClipboard()
 	}
 
@@ -173,5 +202,15 @@ func CheckClipboard() tea.Cmd {
 		}
 
 		return ClipboardUpdateMsg(content)
+	}
+}
+
+func (m *Model) addToOutputsQueue(message string) {
+	const maxOutputs = 5
+
+	m.outputs = append(m.outputs, message)
+
+	if len(m.outputs) > maxOutputs {
+		m.outputs = m.outputs[1:]
 	}
 }

@@ -15,6 +15,8 @@ func (m Model) View() string {
 		return m.renderFormatSelect()
 	case monitoring:
 		return m.renderMonitoring()
+	case contentView:
+		return m.renderContentView()
 	default:
 		return "Unknown state"
 	}
@@ -127,16 +129,18 @@ func (m Model) renderMonitoring() string {
 	} else {
 		logTitle := infoStyle.Render("Activity log:")
 
-		var logEntries strings.Builder
-		startIdx := 0
-		if len(m.outputs) > 10 {
-			startIdx = len(m.outputs) - 10
-		}
+		const maxVisibleLogs = 8
 
-		for _, output := range m.outputs[startIdx:] {
+		startIdx := max(0, len(m.outputs)-maxVisibleLogs)
+		recentOutputs := m.outputs[startIdx:]
+
+		var logEntries strings.Builder
+		for _, output := range recentOutputs {
 			var style lipgloss.Style
 			if strings.Contains(output, "Error") {
 				style = errorLogStyle
+			} else if strings.Contains(output, "Warning") {
+				style = warningLogStyle
 			} else {
 				style = successLogStyle
 			}
@@ -150,18 +154,20 @@ func (m Model) renderMonitoring() string {
 		)
 	}
 
-	mutedInstructionStyle := buttonStyle
-	mutedInstructionStyle = mutedInstructionStyle.
+	mutedInstructionStyle := buttonStyle.
 		Foreground(subtle).
 		Background(lipgloss.NoColor{}).
 		Bold(false)
 
 	settingsInstruction := mutedInstructionStyle.Render("[ s ] to change settings")
+	viewInstruction := mutedInstructionStyle.Render("[ v ] to view last processed content")
 	quitInstruction := mutedInstructionStyle.Render("[ q ] to quit")
 
 	instructions := lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		settingsInstruction,
+		"    ",
+		viewInstruction,
 		"    ",
 		quitInstruction,
 	)
@@ -182,4 +188,81 @@ func (m Model) renderMonitoring() string {
 			instructions,
 		),
 	)
+}
+
+func (m Model) renderContentView() string {
+	title := titleStyle.Render(logo)
+	subtitle := subtitleStyle.Render("Last Processed Content:")
+
+	contentLines := strings.Split(m.lastProcessed, "\n")
+
+	viewportHeight := 20
+	totalLines := len(contentLines)
+	maxScroll := max(0, totalLines-viewportHeight)
+
+	startLine := m.scrollPosition
+	endLine := min(startLine+viewportHeight, totalLines)
+
+	visibleContent := strings.Join(contentLines[startLine:endLine], "\n")
+
+	contentBox := lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(highlight).
+		Padding(1).
+		Width(80).
+		Height(viewportHeight + 2).
+		Render(visibleContent)
+
+	var scrollInfo string
+	if totalLines > viewportHeight {
+		scrollPercentage := float64(m.scrollPosition) / float64(maxScroll) * 100
+		scrollInfo = infoStyle.Render(fmt.Sprintf("Line %d of %d (%.0f%%)",
+			m.scrollPosition+1, totalLines, scrollPercentage))
+
+		if m.scrollPosition > 0 && m.scrollPosition < maxScroll {
+			scrollInfo += "  ↑ ↓"
+		} else if m.scrollPosition > 0 {
+			scrollInfo += "  ↑"
+		} else if m.scrollPosition < maxScroll {
+			scrollInfo += "  ↓"
+		}
+	}
+
+	mutedInstructionStyle := buttonStyle.
+		Foreground(subtle).
+		Background(lipgloss.NoColor{}).
+		Bold(false)
+
+	upDownInstruction := mutedInstructionStyle.Render("[ ↑/↓ ] to scroll")
+	escInstruction := mutedInstructionStyle.Render("[ ESC ] to return to monitoring view")
+	quitInstruction := mutedInstructionStyle.Render("[ q ] to quit")
+
+	instructions := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		upDownInstruction,
+		"    ",
+		escInstruction,
+		"    ",
+		quitInstruction,
+	)
+
+	return appStyle.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			subtitle,
+			scrollInfo,
+			"",
+			contentBox,
+			"",
+			instructions,
+		),
+	)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
